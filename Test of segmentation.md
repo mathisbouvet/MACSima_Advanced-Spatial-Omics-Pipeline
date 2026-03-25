@@ -1,44 +1,42 @@
 <h1 style="color: #333; text-align: center; padding: 15px 0; border-top: 3px double #333; border-bottom: 3px double #333; font-family: Georgia, serif; font-style: italic; font-weight: normal; margin-top: 20px; margin-bottom: 30px;">
-  Protocole de Contrôle Qualité et d'Optimisation de la Segmentation Tissulaire
+  Quality Control and Optimization Protocol for Tissue Segmentation
 </h1>
 
 <div style="text-align: center; font-family: Georgia, serif; font-size: 1.2em; color: #555; margin-top: -10px; margin-bottom: 30px;">
-  Par <strong>Mathis BOUVET</strong> — Biologiste spécialiste en Reproduction et Développement
+  By <strong>Mathis BOUVET</strong> — Biologist specializing in Reproduction and Development
   <br>
-  <span style="font-size: 0.8em; font-style: italic;">Mars 2026</span>
-</div>
-
-> **Note importante**
-> : Ce document ne contient aucune donnée réel
-
-
-<span style="background-color: #007acc; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">Issu d'une coupe tissulaire</span> <span style="background-color: #007acc; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">Code Python</span> <span style="background-color: #007acc; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">MACSima</span> <span style="background-color: #007acc; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">Segmentation</span>
-
-<div style="border: 1px solid #569cd6; border-radius: 10px; padding: 20px; background-color: rgba(86, 156, 214, 0.1); color: #000000;">
-  <strong>La segmentation cellulaire</strong><br>
-  Avant d'entamer une analyse spatiale, il est crucial d'obtenir une segmentation fidèle à la réalité biologique du tissu étudié. Si la segmentation manuelle demeure la méthode de référence en termes de précision, les contraintes temporelles imposent le recours à des outils automatisés. Des solutions telles que Cellpose, StarDist ou QuPath offrent désormais des segmentations de haute précision grâce au Deep Learning. Toutefois, ces outils se heurtent à certaines limites, notamment le risque de sur-apprentissage (overfitting) ou l'incapacité à généraliser face à la diversité des architectures tissulaires. L'exigence de segmentation diffère radicalement entre une coupe de testicule et une coupe d'ovaire, par exemple. Dès lors, il devient indispensable de développer des protocoles de validation rigoureux, où la segmentation automatique est confrontée à une "vérité terrain" (ground truth) établie manuellement, afin d'en quantifier la fiabilité.
+  <span style="font-size: 0.8em; font-style: italic;">March 2026</span>
 </div>
 <br>
 
-<h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-  Objectif
-</h2>
-Ce document détaille les étapes de l'analyse de la segmentation cellulaire, s'appuyant sur des masques de régions d'intérêt (ROI) issus d'une segmentation manuelle, afin de les confronter aux résultats d'une segmentation automatisée
+> **Important note**
+> : This document contains no real data
 
+<div style="border: 1px solid #569cd6; border-radius: 10px; padding: 20px; background-color: rgba(86, 156, 214, 0.1); color: #000000;">
+  <strong>Cell segmentation</strong><br>
+  Before initiating spatial analysis, it is crucial to obtain a segmentation that remains faithful to the biological reality of the tissue under study. While manual segmentation remains the gold standard in terms of accuracy, time constraints necessitate the use of automated tools. Solutions such as Cellpose, StarDist, or QuPath now offer high-precision segmentation powered by Deep Learning. However, these tools face certain limitations, notably the risk of overfitting or an inability to generalize across diverse tissue architectures. Segmentation requirements differ radically between a testicular section and an ovarian section, for example. Consequently, it is indispensable to develop rigorous validation protocols, where automated segmentation is evaluated against a manually established 'ground truth' to quantify its reliability.
+</div>
+
+<h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
+  Objective
+</h2>
+This document details the steps for cellular segmentation analysis, utilizing regions of interest (ROI) masks derived from manual segmentation to compare them against the results of automated segmentation.
+
+<br>
 <br>
 
 <div style="border: 1px solid #d65323; border-radius: 10px; padding: 20px; background-color: rgba(213, 101, 45, 0.1); color: #000000;">
-  <strong>Importation des librairies</strong><br>
+  <strong>Importing libraries</strong><br>
 
 <details>
-  <summary><b>Afficher/masquer le code de configuration</b></summary>
+  <summary><b>Show/hide configuration code</b></summary>
 
 ```python
 import importlib
 import subprocess
 import sys
 
-# Dictionnaire des bibliothèques nécessaires
+# Dictionary of necessary libraries
 required_packages = {
     "numpy": "numpy",
     "cv2": "opencv-python",
@@ -51,19 +49,19 @@ required_packages = {
     "seaborn": "seaborn"
 }
 def install_and_import():
-    print("Analyse de l'environnement nlp_env...")
+    print("Environmental analysis nlp_env...")
     for module_name, package_name in required_packages.items():
         try:
             importlib.import_module(module_name)
-            print(f"✅ {module_name} est déjà prêt.")
+            print(f"✅ {module_name} is already ready.")
         except ImportError:
-            print(f"⚠️ {module_name} manque. Installation de {package_name} en cours...")
+            print(f"⚠️ {module_name} manque. Installation of {package_name} in progress...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
-            print(f"🚀 {package_name} installé avec succès !")
+            print(f"{package_name} installed successfully !")
 
 install_and_import()
 
-# Importation des bibliothèques après installation
+# Importing libraries
 import numpy as np
 import cv2
 import pandas as pd 
@@ -79,35 +77,35 @@ from scipy.stats import ks_2samp, mannwhitneyu
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.ensemble import IsolationForest
 
-print("✨ Tous les modules sont importés et prêts à l'emploi !")
+print("All modules are imported and ready to use!")
 ```
 </details>
 </div>
 
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-  1. Création des masques à partir des ROIs
+  1. Creating masks from the ROIs
 </h2>
 
-### 1.a. Création des ROIs via Fiji et importation dans l'environnement Python
+### 1.a. ROIs created via Fiji and imported into the Python environment
 
 
-Une image DAPI de référence est extraite du système MACSima, puis exportée au format `.tif` pour être traitée sous Fiji. Des régions d'intérêt (ROI) y sont générées afin de servir de base à la création des masques de segmentation. Une fois ces ROI créées, l'image de référence ainsi que le dossier contenant leurs coordonnées sont importés dans l'environnement Python pour la suite de l'analyse.
+A reference DAPI image is extracted from the MACSima system and then exported in `.tif` format for processing in Fiji. Regions of interest (ROI) are generated within it to serve as the basis for creating segmentation masks. Once these ROIs are created, both the reference image and the folder containing their coordinates are imported into the Python environment for the subsequent analysis.
 
-> **Image DAPI**
-> : En format `tiff` exporté via le MACSIMA
+> **DAPI Image**
+> : Exported in `tiff` format via MACSIMA
 
 > **SetROIs**
-> : En format `zip` créer et exporté à partir de Fiji
+> : Created and exported from Fiji in `zip` format
 
 
 ```python
-# Charger l’image TIFF
+# Load the TIFF image
 image = cv2.imread("[image.tiff]")
 
-# Dossier temporaire pour extraire les ROIs
+# Temporary folder for extracting ROIs
 extract_folder = "roi_dezip"
 
-# Extraire les fichiers du ZIP
+# Extract the files from the ZIP archive
 with zipfile.ZipFile("[SetROIs.zip]", "r") as zip_ref:
     zip_ref.extractall(extract_folder)
 roi_files = [f for f in os.listdir(extract_folder) if f.endswith(".roi")]
@@ -116,18 +114,18 @@ for roi_file in roi_files:
     roi_path = os.path.join(extract_folder, roi_file)
     roi_data = read_roi_file(roi_path)
     all_rois.update(roi_data)
-print(f"Nombre de ROIs chargés : {len(all_rois)}")
+print(f"Number of ROIs charged : {len(all_rois)}")
 ```
-Attention à bien vérifier le nombre de ROIs importé 
+Be sure to check the number of imported ROIs
 
 
-### 1. b Génération des masques 
+### 1. b Generation of masks
 
 
-Dans cette analyse, plusieurs types de masques sont générés pour tester le mode de segmentation de MACSiQView. Le code ainsi exécuté permet d'obtenir 4 types de masques différents 
+In this analysis, several types of masks are generated to test the MACSiQView segmentation mode. The executed code yields four different types of masks.
 
 ```python
-#ROIs colorées + fond noir
+#ROIs colorful + black background
 masked_image = np.zeros_like(image)
 def generate_random_color():
     return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -139,7 +137,7 @@ for roi_name, roi in roi_data.items():
     masked_image[rr, cc] = color
 cv2.imwrite("mask_1.tif", masked_image)
 
-#ROIs colorées (2) + fond noir
+#ROIs colorful (2) + black background
 colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
 masked_image = np.zeros_like(image)
 roi_color_idx = 0 
@@ -152,7 +150,7 @@ for roi_name, roi in roi_data.items():
     roi_color_idx = (roi_color_idx + 1) % len(colors)
 cv2.imwrite("mask_2.tif", masked_image)
 
-#ROIs en niveau de gris
+#ROIs in grayscale
 gray_mask = np.zeros(image.shape[:2], dtype=np.uint8)
 for roi_name, roi in roi_data.items():
     x = np.array(roi["x"])
@@ -161,7 +159,7 @@ for roi_name, roi in roi_data.items():
     gray_mask[rr, cc] = np.clip(gray_mask[rr, cc] + 50, 0, 255)
 cv2.imwrite("mask_3.tif", gray_mask)
 
-#ROIs en niveau de gris + contours
+#ROIs in grayscale + outlines
 gray_mask = np.zeros(image.shape[:2], dtype=np.uint8)
 for roi_name, roi in roi_data.items():
     x = np.array(roi["x"])
@@ -174,35 +172,35 @@ cv2.imwrite("mask_4.tif", gray_mask)
 ```
 <br>
 
-### 1.c Segmentation MACSiQView sur les masques générés par Python et comparaison entre elle
+### 1.c MACSiQView segmentation on masks generated by Python and comparison between them
 
 
-Le logiciel MACSiQView propose différents algorithmes de segmentation. L’objectif de cette étude est d'évaluer les quatre modalités disponibles (Import mask, Import label, Single Cell et Tissue) afin d'identifier celle offrant la segmentation la plus fidèle aux structures biologiques. Une fois la segmentation validée, l’onglet "Feature Table" permet de sélectionner les descripteurs à intégrer dans l’analyse. Cette étape assure l'exportation exclusive des données morphologiques cellulaires, indépendamment des intensités de fluorescence. Le fichier ainsi généré, au format `.csv`, est ensuite importé dans un environnement Python. Parmi l’ensemble des variables extraites, les paramètres suivants ont été retenus : Area, Perimeter, Centroid X et Y, Feret et Mean Intensity .
+The MACSiQView software offers various segmentation algorithms. The objective of this study is to evaluate the four available modalities (Import mask, Import label, Single Cell, and Tissue) to identify the one providing the most faithful segmentation of biological structures. Once the segmentation is validated, the 'Feature Table' tab allows for the selection of descriptors to be included in the analysis. This step ensures the exclusive export of cellular morphological data, independent of fluorescence intensities. The resulting file, in .csv format, is then imported into a Python environment. From the set of extracted variables, the following parameters were retained: Area, Perimeter, Centroid X and Y, Feret, and Mean Intensity.
 
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-2 Comparaison des différentes segmentations 
+2 Comparison of the different segmentations
 </h2>
 
-### 2.a  Calcule des comparaisons
+### 2.a  Calculates comparisons
 
 
 
-Tout d'abord, on importe les segmentations automatiques `df_auto` et la segmentation manuel `df_manual`. On garde seulement les points de comparaison suivant : Area, Perimeter, Centroid X et Y, Feret et Mean intensity. 
+First, we import the automatic segmentations `df_auto` and the manual segmentation `df_manual`. We keep only the following comparison points: Area, Perimeter, Centroid X and Y, Field and Mean intensity.
 
-On applique une normalisation par `MinMaxScaler()` et on construit un dataframe de comparaison `df_comparison`. Le choix du `MinMaxScaler` repose sur l'hypothèse d'un nettoyage préalable des données sous MACSiQView, garantissant l'absence d'outliers extrêmes et permettant une comparaison directe sur une échelle normalisée [0, 1] plus lisible pour l'analyse morphologique.
+We apply normalization using `MinMaxScaler()` and construct a comparison dataframe `df_comparison`. The choice of `MinMaxScaler` is based on the assumption of prior data cleaning under MACSiQView, guaranteeing the absence of extreme outliers and allowing direct comparison on a normalized scale [0, 1] which is more readable for morphological analysis.
 
 ```python
-# Fichier manuel (issu de Fiji)
+# Manual file (from Fiji)
 df_manual = pd.read_csv("[Segmentation_manuelle].csv")
 
-# Fichiers automatiques (issu de MACSiQView)
+# Automatic files (from MACSiQView)
 df_auto1 = pd.read_csv("[Mask_3_Single_Cell].csv")
 df_auto2 = pd.read_csv("[Mask_3_Tissue.csv]")
 df_auto3 = pd.read_csv("[Mask_4_Import_mask].csv")
 df_auto4 = pd.read_csv("[Mask_4_Single_Cell].csv")
 df_auto5 = pd.read_csv("[Mask_4_Tissue].csv")
 
-# Renommer les colonnes
+# Rename the columns
 df_manual = df_manual.rename(columns={
     'Area': 'area',
     'Perim.': 'perimeter',
@@ -212,13 +210,13 @@ df_manual = df_manual.rename(columns={
     'Mean': 'mean_intensity'
 })
 
-# Conserver uniquement les colonnes spécifiées
+# Keep only the specified columns
 columns_to_keep = ['area', 'perimeter', 'centroid_x', 'centroid_y', 'feret', 'mean_intensity']
 df_manual = df_manual[columns_to_keep]
-print("Avant normalisation :")
+print("Before normalization :")
 print(df_manual.head(), "\n")
 
-# Adaptation des colonnes des fichiers de segmentation automatique
+# Adaptation of columns in automatic segmentation files
 def rename_auto(df):
     return df.rename(columns={
         'Nucleus Size': 'area',
@@ -236,7 +234,7 @@ df_auto5 = rename_auto(df_auto5)
 
 scaler = MinMaxScaler()
 
-# Normaliser les colonnes numériques
+# Normalize the numeric columns
 df_manual[columns_to_keep] = scaler.fit_transform(df_manual[columns_to_keep])
 df_auto1[columns_to_keep] = scaler.fit_transform(df_auto1[columns_to_keep])
 df_auto2[columns_to_keep] = scaler.fit_transform(df_auto2[columns_to_keep])
@@ -244,13 +242,13 @@ df_auto3[columns_to_keep] = scaler.fit_transform(df_auto3[columns_to_keep])
 df_auto4[columns_to_keep] = scaler.fit_transform(df_auto4[columns_to_keep])
 df_auto5[columns_to_keep] = scaler.fit_transform(df_auto5[columns_to_keep])
 
-print("Après normalisation :")
+print("After normalization :")
 print(df_manual.head())
 print(df_auto1.head())
 
 df_comparison = df_manual[['area', 'perimeter', 'centroid_x', 'centroid_y', 'feret', 'mean_intensity']].copy()
 
-# Ajout des segmentations automatiques
+# Added automatic segmentation
 for i, df_auto in enumerate([df_auto1, df_auto2, df_auto3, df_auto4, df_auto5], start=1):
     suffix = f'_auto{i}'
     df_comparison[f'area{suffix}'] = df_auto['area']
@@ -262,17 +260,17 @@ for i, df_auto in enumerate([df_auto1, df_auto2, df_auto3, df_auto4, df_auto5], 
 ```
 
 
-### 2.b Comparaison statistique de la segmentation la plus proche (Kolmogorov-Smirnov)
+### 2.b Statistical comparison of the closest segmentation (Kolmogorov-Smirnov)
 
 
 
-On utilise un test de Kolmogorov-Smirnov à deux échantillons. Pour simplifier les démarches, on récupères uniquement la statistique KS, on la stock dans un dataframe spécifique `distance_df`et on ajoute la distance moyenne KS sur les 6 paramètres
+We use a two-sample Kolmogorov-Smirnov test. To simplify the process, we only retrieve the KS statistic, store it in a specific dataframe `distance_df`, and add the average KS distance over the 6 parameters.
 
-En analysant les paramètres, le script informe directement la segmentation la plus proche
+By analyzing the parameters, the script directly informs the nearest segmentation
 
 
 ```python
-# Correspondance pour les nouveaux noms
+# Correspondence for new names
 legend_mapping = {
     'Auto1': 'Mask 3 en Single Cell',
     'Auto2': 'Mask 3 en Tissue',
@@ -281,7 +279,7 @@ legend_mapping = {
     'Auto5': 'Mask 4 en Tissue'
 }
 
-# Calcule ses distances de Kolmogorov-Smirnov pour chaque paramètre
+# Calculates its Kolmogorov-Smirnov distances for each parameter
 distances = {}
 for column in columns_to_keep:
     distances[column] = []
@@ -291,17 +289,17 @@ for column in columns_to_keep:
 
 distances_df = pd.DataFrame(distances, index=['Auto1', 'Auto2', 'Auto3', 'Auto4', 'Auto5'])
 distances_df['Mean Distance'] = distances_df.mean(axis=1)
-print("Distances moyennes de Kolmogorov-Smirnov pour chaque df_auto :")
+print("Average distances from Kolmogorov-Smirnov for each df_auto :")
 print(distances_df['Mean Distance'])
 
 closest_auto = distances_df['Mean Distance'].idxmin()
-print(f"\nLa df_auto la plus proche de df_manual est : {legend_mapping[closest_auto]}")
+print(f"\nThe df_auto closest to df_manual is : {legend_mapping[closest_auto]}")
 ```
 
-### 2.c Visualisation
+### 2.c Visualization
 
 
-On réalise également les barplot des distances moyennes
+We also perform barplots of average distances
 
 ```python
 plt.figure(figsize=(10, 6))
@@ -310,23 +308,22 @@ ax = distances_df['Mean Distance'].plot(kind='bar', color='#E9EDC9', edgecolor='
 for p in ax.patches:
     ax.annotate(f'{p.get_height():.3f}', (p.get_x() + p.get_width() / 2., p.get_height()),
                 ha='center', va='center', xytext=(0, 10), textcoords='offset points', color='white')
-plt.title('Distances Moyennes de Kolmogorov-Smirnov par Segmentation', color='white')
-plt.ylabel('Distance Moyenne', color='white')
+plt.title('Average Kolmogorov-Smirnov Distances by Segmentation', color='white')
+plt.ylabel('Average Distance', color='white')
 plt.xlabel('Segmentations', color='white')
 plt.xticks(ticks=range(len(legend_mapping)), labels=[legend_mapping[item] for item in distances_df.index], rotation=45, ha='right', color='white')
 plt.yticks(color='white')
 plt.grid(True, linestyle='--', alpha=0.6, color='white')
 ax.set_facecolor('black')
 ax.figure.set_facecolor('black')
-plt.savefig('distances_moyennes_ks.png', format='png', facecolor='black')
 plt.show()
 ```
-On visualise également les courbes de densité (KDE) pour comparer la forme des distributions
+We also visualize density curves (KDE) to compare the shape of the distributions.
 ```python
 plt.style.use('default')
 params = ['area', 'perimeter', 'feret', 'mean_intensity']
 
-# mapping adapté aux clés
+# Key-adapted mapping
 legend_mapping = {
     'auto1': 'Mask 3 en Single Cell',
     'auto2': 'Mask 3 en Tissue',
@@ -349,48 +346,47 @@ for idx, param in enumerate(params):
         if colname in df_comparison.columns:
             sns.kdeplot(df_comparison[colname], label=legend_mapping[key], linewidth=2, ax=ax)
         else:
-            print(f"Colonne manquante : {colname}")
+            print(f"Missing column : {colname}")
 
-# Vérification si la colonne manuelle existe
+# Checking if the manual column exists
     if param in df_comparison.columns:
         sns.kdeplot(df_comparison[param], label=legend_mapping['manuel'], color='cyan', linestyle='--', linewidth=2, ax=ax)
     else:
-        print(f"Colonne manuelle manquante : {param}")
-    ax.set_title(f'Distribution Comparée - {param}')
-    ax.set_xlabel('Valeur Normalisée')
-    ax.set_ylabel('Densité')
+        print(f"Missing manual column : {param}")
+    ax.set_title(f'Comparative Distribution - {param}')
+    ax.set_xlabel('Normalized Value')
+    ax.set_ylabel('Density')
     ax.grid(True, linestyle='--', alpha=0.6)
 
-# Légende
+# Legend
 handles, labels = axes[0].get_legend_handles_labels()
 fig.legend(handles, labels, title='Segmentation', loc='upper center', ncol=3)
 plt.tight_layout(rect=[0, 0, 1, 0.93])
-fig.savefig('distributions_comparées.png', format='png', facecolor='white')
 plt.show()
 ```
 
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-3. Bonne segmentation ?
+3. Good segmentation?
 </h2>
 
-### 3.a Calcul de comparaison entre la segmentation manuelle et automatique
+### 3.a Comparison calculation between manual and automatic segmentation
 
 
 
-Cette étude a pour objet l’évaluation comparative d’une segmentation automatisée réalisée sous MACSiQ View par rapport à une méthodologie de référence établie à partir de masques de régions d'intérêt (ROI) générés manuellement. Les données issues de la segmentation manuelle, déjà compilées, constituent le jeu de données de référence `df_ref`. La présente analyse vise à appliquer une procédure identique à une image DAPI issue d'une immunofluorescence MACSima, dont les résultats sont consignés dans le jeu de données `df_test`. En assurant une stricte uniformité des paramètres d'exportation, cette approche permet de quantifier la précision de la segmentation automatisée, d'en valider la pertinence scientifique et de formuler des hypothèses d'optimisation pour les protocoles de traitement d'image ultérieurs.
+The purpose of this study is the comparative evaluation of an automated segmentation performed in MACSiQView against a reference methodology established from manually generated Region of Interest (ROI) masks. The data from the manual segmentation, already compiled, constitute the reference dataset df_ref. The present analysis aims to apply an identical procedure to a DAPI image from MACSima immunofluorescence, the results of which are recorded in the test dataset df_test. By ensuring strict uniformity of export parameters, this approach allows for the quantification of automated segmentation accuracy, the validation of its scientific relevance, and the formulation of optimization hypotheses for subsequent image processing protocols.
 
 <div style="border: 1px solid #fff200; border-radius: 10px; padding: 20px; background-color: rgba(234, 255, 0, 0.1); color: #000000;">
-Les étapes de vérification intégrées au script, bien qu'elles en augmentent la complexité, permettent de s'assurer que les colonnes sont conformes aux paramètres préalablement sélectionnés.
+The verification steps integrated into the script, although they increase its complexity, ensure that the columns conform to the previously selected parameters.
 </div>
 
 <br>
 
-Une fois les colonnes triés et les données normalisés (c'est obligatoire). On utilise Isolation Forest qui sera entraîné uniquement sur la référence `X_ref_scaled` (car nous avons segmenté manuellement qu'une seule image). On suppose une contamination de 10%
+Once the columns are sorted and the data normalized (this is mandatory), we use Isolation Forest, which will be trained only on the `X_ref_scaled` reference (since we manually segmented only one image). We assume a 10% contamination rate.
 
-Pour vérifier la sensibilité au paramètre de contamination, on fait tourner le modèle d'isolation sur différente valeur de contamination. Pour chaque valeur, on regarde quel pourcentage de cellules test est classé "OK"
+To verify sensitivity to the contamination parameter, the isolation model is run on different contamination values. For each value, the percentage of test cells classified as "OK" is checked.
 
 ```python 
-# Chargement des fichiers et sélection des colonnes
+# Loading files and selecting columns
 df_ref = pd.read_csv("Ref")
 df_test = pd.read_csv("Test.csv")
 df_ref.columns = df_ref.columns.str.strip()
@@ -402,10 +398,10 @@ features_to_use = [
     "Quality Cell In-Focus", "Quality Nuclear Segmentation"
 ]
 
-# Vérification s'il exsite des colonnes manquantes
+# Checking for missing columns
 missing = [col for col in features_to_use if col not in df_ref.columns or col not in df_test.columns]
 if missing:
-    raise ValueError(f"❌ Colonnes manquantes dans les fichiers : {missing}")
+    raise ValueError(f"❌ Missing columns in the files : {missing}")
 
 X_ref = df_ref[features_to_use].dropna()
 X_test = df_test[features_to_use].dropna()
@@ -424,8 +420,8 @@ nb_total = len(preds)
 nb_valides = (preds == 1).sum()
 pourcentage = nb_valides / nb_total * 100
 
-print(f"\n✅ Résultat avec contamination={best_contamination:.2f} :")
-print(f"{nb_valides} / {nb_total} cellules considérées comme bien segmentées ({pourcentage:.2f}%)")
+print(f"\n✅ Result with contamination={best_contamination:.2f} :")
+print(f"{nb_valides} / {nb_total} cells considered to be well segmented ({pourcentage:.2f}%)")
 ```
 
 
@@ -441,22 +437,22 @@ for c in contamination_values:
     ok_percentages.append(ok_percent)
 
 plt.plot(contamination_values, ok_percentages, marker='o')
-plt.xlabel("Taux de contamination")
-plt.ylabel("% de cellules bien segmentées")
-plt.title("Effet de 'contamination' sur la détection des bonnes segmentations")
+plt.xlabel("Contamination rate")
+plt.ylabel("% of well-segmented cells")
+plt.title("'Contamination' effect on the detection of correct segmentations")
 plt.grid(True)
 plt.tight_layout()
 plt.show()
 df_test_clean.to_csv("segmentation_test_annotated.csv", index=False)
-print("💾 Résultat sauvegardé dans : segmentation_test_annotated.csv")
+print("💾 Result saved in : segmentation_test_annotated.csv")
 ```
 
 
-### 3.b Proposition d'amélioration de paramètre
+### 3.b Parameter improvement suggestion
 
 
 
-Si le modèle Isolation Forest identifie des vecteurs de paramètres comme étant aberrants ou non conformes à une segmentation optimale, il devient alors possible d'extraire des indicateurs d'optimisation pour les réglages de segmentation. À cet effet, un dictionnaire de correspondance est établi afin de lier chaque variable mesurée à un paramètre spécifique de MACSiQ View, permettant ainsi de déterminer l'ajustement requis (incrémentation ou décrémentation du paramètre).Le test statistique de Mann-Whitney U est employé pour comparer les distributions des populations conformes (OK) et non conformes (KO). Si une différence statistiquement significative est observée ($p < 0,01$), l'analyse de la position des médianes (ou moyennes) permet de définir une polarité de l'écart ($KO < OK$ ou $KO > OK$). Cette divergence est ensuite traduite en recommandations opérationnelles pour MACSiQ View, accompagnée du calcul du pourcentage de variation relative entre les deux groupes. »
+If the Isolation Forest model identifies parameter vectors as outliers or non-compliant with optimal segmentation, it then becomes possible to extract optimization indicators for the segmentation settings. To this end, a mapping dictionary is established to link each measured variable to a specific MACSiQView parameter, thereby determining the required adjustment (incrementing or decrementing the parameter). The Mann-Whitney U statistical test is employed to compare the distributions of compliant (OK) and non-compliant (KO) populations. If a statistically significant difference is observed ($p < 0.01$), analyzing the position of the medians (or means) allows for defining the polarity of the deviation ($KO < OK$ or $KO > OK$). This divergence is then translated into operational recommendations for MACSiQView, accompanied by the calculation of the relative percentage variation between the two groups.
 
 ```python
 param_map = {
@@ -504,51 +500,52 @@ for feature in features_to_use:
 
     summary.append({
         "Variable": feature,
-        "Moyenne OK": round(mean_ok, 2),
-        "Moyenne KO": round(mean_ko, 2),
-        "Différence": direction,
-        "Paramètre MACSiQ lié": param,
-        "Suggestion d’ajustement": suggestion,
-        "% de changement indicatif": percent_change,
+        "Mean OK": round(mean_ok, 2),
+        "Mean KO": round(mean_ko, 2),
+        "Difference": direction,
+        "MACSiQ parameter linked": param,
+        "Suggested adjustment": suggestion,
+        "indicative % change": percent_change,
         "p-value": round(p, 4)
     })
 summary_df = pd.DataFrame(summary).sort_values("p-value")
 
-# Affichage console
-print("\n Résumé des paramètres MACSiQ à ajuster :\n")
+# Console display
+print("\n Summary of MACSiQ parameters to adjust :\n")
 print(summary_df.to_string(index=False))
 
 # Export CSV
 summary_df.to_csv("macsiq_param_suggestions.csv", index=False)
-print("\n💾 Résumé exporté dans : macsiq_param_suggestions.csv")
+print("\n💾 Summary exported to : macsiq_param_suggestions.csv")
 ```
 
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-4. Amélioration possible et limite 
+4. Possible improvement and limit
 </h2>
 
 
 
-### 4.a Limite sur le modèle de comparaison
-Bien que la comparaison par test de Kolmogorov-Smirnov et la visualisation des densités (KDE) permettent de valider globalement la fidélité d'une méthode de segmentation, ces approches présentent une limite intrinsèque : elles traitent les paramètres de manière isolée (analyse univariée). En réalité, une cellule "aberrante" n'est pas forcément détectable sur un seul critère (ex: une surface normale), mais par la combinaison incohérente de plusieurs facteurs (ex: une surface normale associée à une circularité extrêmement faible et une intensité hétérogène). L'œil humain repère ces anomalies instinctivement, mais une analyse statistique classique peut laisser passer ces artefacts, ce qui biaise les résultats finaux de l'analyse spatiale.
+### 4.a Limitations on the comparison model
 
-Pour pallier cette limite, on pourrait utiliser l'Isolation Forest. Contrairement aux méthodes qui cherchent à définir un modèle de "cellule parfaite", cet algorithme de Machine Learning identifie les anomalies par leur isolation. Dans un espace mathématique où chaque paramètre morphologique est une dimension, l'algorithme segmente aléatoirement les données : les cellules normales, très denses et similaires, demandent de nombreuses étapes pour être isolées, tandis que les erreurs de segmentation (artefacts, doubles, débris) sont isolées très rapidement.
+While Kolmogorov-Smirnov tests and Kernel Density Estimation (KDE) visualizations allow for a global validation of segmentation fidelity, these approaches have an intrinsic limitation: they treat parameters in isolation (univariate analysis). In reality, an 'aberrant' cell is not necessarily detectable based on a single criterion (e.g., a normal surface area), but rather through an inconsistent combination of several factors (e.g., a normal surface area associated with extremely low circularity and heterogeneous intensity). The human eye spots these anomalies instinctively, but classical statistical analysis can overlook these artifacts, thereby biasing the final results of the spatial analysis.
+
+To overcome this limitation, the Isolation Forest algorithm could be utilized. Unlike methods that seek to define a 'perfect cell' model, this Machine Learning algorithm identifies anomalies through their isolation. In a mathematical space where each morphological parameter represents a dimension, the algorithm randomly partitions the data: normal cells, which are dense and similar, require many steps to be isolated, whereas segmentation errors (artifacts, doublets, debris) are isolated much more quickly.
 
 <div style="border: 1px solid #fff200; border-radius: 10px; padding: 20px; background-color: rgba(234, 255, 0, 0.1); color: #000000;">
-On utilise la fonction `sklearn.ensemble.IsolationForest`qu'on utilise déjà partiellement mais pour répondre à la limite univariée. La, on l'utiliserait comme filtre en amont. Ensuite `model.predict(X_test_scaled)` obtient des labels -1 ou 1. Cette étiquettage sera pris en compte dans les graphiques KDE et les test KS
+We utilize the sklearn.ensemble.IsolationForest function, which is already partially in use, to address the univariate limitation. In this case, it would be used as a pre-filtering step. Then, model.predict(X_test_scaled) yields labels of -1 or 1. This labeling will then be incorporated into the KDE plots and KS tests.
 </div>
 
-### 4.b Evolution du modèle vers un DeepLearning
+### 4.b Evolution of the model towards Deep Learning
 
-L'étape ultime de ce protocole consiste à dépasser la validation sur une image unique pour construire un modèle de référence robuste. Actuellement, notre analyse s'appuie sur une image segmentée manuellement. Toutefois, la diversité des tissus nécessite une base de données plus large. En compilant les segmentations manuelles de plusieurs coupes tissulaires, nous pouvons constituer un Dataset d'entraînement massif. Il servira à entraîner un modèle de DeepLearning spécifiques à nos conditions d'acquisition. Le workflow devient alors cyclique. Chaque nouvelle image validée par l'Isolation Forest et corrigée par l'humain. Plus le modèle voit de structures cellulaires variées, plus sa capacité de généralisation augmente, réduisant ainsi le besoin de correction manuelle. À terme, ce modèle auto-apprenant permet d'uniformiser la qualité de segmentation sur l'ensemble des projets de l'unité, garantissant une reproductibilité totale, indépendamment de l'opérateur ou de la variabilité biologique du tissu.
+The final step of this protocol consists of moving beyond single-image validation to build a robust reference model. Currently, our analysis relies on a manually segmented image; however, tissue diversity necessitates a broader database. By compiling manual segmentations from multiple tissue sections, we can build a massive training dataset. This dataset will be used to train a Deep Learning model specifically tailored to our acquisition conditions. The workflow thus becomes cyclic: each new image is validated by the Isolation Forest and corrected by a human expert. The more varied cellular structures the model encounters, the greater its generalization capacity becomes, thereby reducing the need for manual correction. Ultimately, this self-learning model standardizes segmentation quality across all unit projects, guaranteeing total reproducibility, regardless of the operator or the biological variability of the tissue.
 
 <div style="border: 1px solid #fff200; border-radius: 10px; padding: 20px; background-color: rgba(234, 255, 0, 0.1); color: #000000;">
-On utilise plus des CSV mais des modèles entraîné sur des pixels. Des fonctions <strong>cellpose.models.CellposeModel</strong> ou <strong>standist.models.StarDist2D</strong> peuvent être utilisé. Ça nécessite des ROIs transformé en masque binaire
+We no longer use CSV files but rather models trained on pixels. Functions<strong>cellpose.models.CellposeModel</strong> or <strong>standist.models.StarDist2D</strong> can be used. This requires ROIs transformed into binary masks
 </div>
 <br>
-Pour aller plus loin, il sera nécessaire de prendre en compte dans notre modèle la morphologie d'un tissu. De cette manière, nous pouvons pondéré notre analyse en forçant l'algorithme à accorder un poids statistique supérieur aux images de référence issues du même organe. À chaque nouvelle analyse d'un tissu inconnu, les segmentations validées manuellement sont étiquetées et intégrées à la bibliothèque. Le système s'enrichit ainsi organiquement, comblant ses propres lacunes au fil des projets de recherche.
+To go further, it will be necessary to incorporate tissue morphology into our model. In this way, we can weight our analysis by forcing the algorithm to assign a higher statistical weight to reference images originating from the same organ. With each new analysis of an unknown tissue, the manually validated segmentations are labeled and integrated into the library. The system thus enriches itself organically, filling its own gaps as research projects progress.
 
 <br>
 <div style="border: 1px solid #fff200; border-radius: 10px; padding: 20px; background-color: rgba(234, 255, 0, 0.1); color: #000000;">
-Une fois la construction du modèle de DeepLearning, il faut simplement utiliser des dictionnaires de modèles via des fonctions comme <strong>joblib.dump</strong>
+Once the DeepLearning model is built, you simply need to use model dictionaries via functions like<strong>joblib.dump</strong>
 </div>

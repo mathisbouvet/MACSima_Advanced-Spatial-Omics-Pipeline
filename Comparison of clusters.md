@@ -1,43 +1,43 @@
 <h1 style="color: #333; text-align: center; padding: 15px 0; border-top: 3px double #333; border-bottom: 3px double #333; font-family: Georgia, serif; font-style: italic; font-weight: normal; margin-top: 20px; margin-bottom: 30px;">
-  Analyse Comparative de Clustering sur Données de Protéomique Spatiale (MACSima)
+  Comparative Clustering Analysis on Spatial Proteomics Data (MACSima)
 </h1>
 
 <div style="text-align: center; font-family: Georgia, serif; font-size: 1.2em; color: #555; margin-top: -10px; margin-bottom: 30px;">
-  Par <strong>Mathis BOUVET</strong> — Biologiste spécialiste en Reproduction et Développement
+  By <strong>Mathis BOUVET</strong> — Biologist specializing in Reproduction and Development
   <br>
-  <span style="font-size: 0.8em; font-style: italic;">Mars 2026</span>
+  <span style="font-size: 0.8em; font-style: italic;">March 2026</span>
 </div>
+<br>
 
-> **Note importante**
-> : Ce document ne contient aucun donnée réel
+> **Important note**
+> : This document contains no real data
 
-
-<span style="background-color: #007acc; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">Issu d'une coupe tissulaire</span> <span style="background-color: #007acc; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">Code Python</span> <span style="background-color: #007acc; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">MACSima</span> <span style="background-color: #007acc; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">Clustering</span>
+<br>
 
 <div style="border: 1px solid #569cd6; border-radius: 10px; padding: 20px; background-color: rgba(86, 156, 214, 0.1); color: #000000;">
-  <strong>Le clustering</strong><br>
-Le clustering est une méthode d'apprentissage non supervisé visant à regrouper des entités (ici, des cellules) présentant des profils d'expression protéique similaires. Dans le cadre de l'imagerie cyclique, cette technique permet d'identifier des populations cellulaires de manière agnostique, sans a priori biologique, afin de révéler l'hétérogénéité phénotypique au sein d'un tissu. L'enjeu est de partitionner l'espace multidimensionnel des marqueurs pour définir des signatures cellulaires distinctes.
+  <strong>Clustering</strong><br>
+Clustering is an unsupervised learning method aimed at grouping entities (in this case, cells) exhibiting similar protein expression profiles. In the context of cyclic imaging, this technique allows for the agnostic identification of cell populations—without biological a priori—to reveal phenotypic heterogeneity within a tissue. The challenge lies in partitioning the multidimensional marker space to define distinct cellular signatures.
 </div>
 <br>
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-  Objectif
+  Objective
 </h2>
 
 
-L'objectif de ce pipeline est d'automatiser le choix de l'algorithme de partitionnement le plus performant pour un jeu de données donné. Le processus ce décompose en trois étapes : validation de la structure, optimisation du k et benchmark de domdèles
+The goal of this pipeline is to automate the selection of the most efficient partitioning algorithm for a given dataset. The process is broken down into three steps: structure validation, k optimization, and domedele benchmarking.
 
 <div style="border: 1px solid #d65323; border-radius: 10px; padding: 20px; background-color: rgba(213, 101, 45, 0.1); color: #000000;">
-  <strong>Importation des librairies</strong><br>
+  <strong>Importing libraries</strong><br>
 
 <details>
-  <summary><b>Afficher/masquer le code de configuration</b></summary>
+  <summary><b>Show/hide configuration code</b></summary>
 
 ```python
 import importlib
 import subprocess
 import sys
 
-# Dictionnaire des bibliothèques
+# Library Dictionary
 required_packages = {
     "numpy": "numpy",
     "matplotlib": "matplotlib",
@@ -48,23 +48,23 @@ required_packages = {
 }
 
 def install_and_import():
-    print("Analyse de l'environnement de travail...")
+    print("Analysis of the work environment...")
     for module_name, package_name in required_packages.items():
         try:
             importlib.import_module(module_name)
-            print(f"✅ {module_name} est déjà prêt.")
+            print(f"✅ {module_name} is already ready.")
         except ImportError:
-            print(f"⚠️ {module_name} manque. Installation de {package_name} en cours...")
+            print(f"⚠️ {module_name} lack. Installation of {package_name} in progress...")
             try:
                 subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
-                print(f"🚀 {package_name} installé avec succès !")
+                print(f"{package_name} installed successfully !")
             except Exception as e:
-                print(f"❌ Erreur lors de l'installation de {package_name} : {e}")
+                print(f"❌ Error during installation of {package_name} : {e}")
 
 install_and_import()
 
 
-# Importations
+# Imports
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -88,23 +88,23 @@ from sklearn.metrics import (
 
 warnings.filterwarnings('ignore')
 
-print("\n✨ Toutes les bibliothèques de clustering et d'analyse sont prêtes !")
+print("\n All clustering and analysis libraries are ready!")
 ```
 </details>
 </div>
 
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-1. Prétraitement et Qualité des données (Score de Hopkins)
+1. Preprocessing and Data Quality (Hopkins Score)
 </h2>
 
-### 1.a Score de Hopkins
+### 1.a Hopkins Score
 
-Le score de Hopkins génère (m) points aléatoire uniformes W et choisit (m) points réels U. 
+The Hopkins statistic (or score) generates $m$ uniformly random points $W$ and selects $m$ real data points $U$.
 
 ```math
 H = \frac{\sum_{i=1}^{m} w_i^d}{\sum_{i=1}^{m} u_i^d + \sum_{i=1}^{m} w_i^d}
 ```
-Si le score H est supérieur à 0,75 on considère que les données ont une tendance au clustering. Autour des 0,5, les données sont distribuées de manière aléatoire 
+If the $H$ score is greater than 0.75, the data is considered to have a clustering tendency. Around 0.5, the data is distributed randomly.
 
 ```python
 def hopkins_statistic(X, m_ratio=0.1):
@@ -123,19 +123,20 @@ def hopkins_statistic(X, m_ratio=0.1):
 
     return np.sum(w_dist) / (np.sum(u_dist) + np.sum(w_dist))
 ```
-### 1.b Métrique d'évaluation 
+### 1.b Evaluation metric
 
 
 
 
 
-| Métrique | Description | Formule | Interprétation |
+| Metric | Description | Formula | Interpretation |
 | :--- | :--- | :--- | :--- |
-| **Silhouette (S)** | Mesure la cohésion interne et la séparation avec les voisins. | $$s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}$$ | **Proche de 1** : Excellent<br>**Proche de 0** : Chevauchement<br>**Négatif** : Erreur d'affectation |
-| **Davies-Bouldin (DB)** | Ratio de la dispersion intra-cluster sur la distance inter-clusters. | $$DB = \frac{1}{k} \sum_{i=1}^{k} \max_{j \neq i} \left( \frac{s_i + s_j}{d_{ij}} \right)$$ | **Plus bas est mieux**<br>Indique des clusters denses et bien espacés. |
-| **Calinski-Harabasz (CH)** | Ratio de la variance entre les clusters et de la variance intra-cluster. | $$CH = \frac{SS_B}{SS_W} \times \frac{N - k}{k - 1}$$ | **Plus élevé est mieux**<br>Valorise la séparation nette et la compacité. |
+| **Silhouette (S)** | Measures internal cohesion and separation from neighbors. | $$s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}$$ | **Close to 1**: Excellent<br>**Close to 0**: Overlapping clusters<br>**Negative**: Assignment error |
+| **Davies-Bouldin (DB)** | Ratio of intra-cluster dispersion to inter-cluster distance. | $$DB = \frac{1}{k} \sum_{i=1}^{k} \max_{j \neq i} \left( \frac{s_i + s_j}{d_{ij}} \right)$$ | **Lower is better**<br>Indicates dense and well-spaced clusters. |
+| **Calinski-Harabasz (CH)** | Ratio of between-cluster variance to within-cluster variance. | $$CH = \frac{SS_B}{SS_W} \times \frac{N - k}{k - 1}$$ | **Higher is better**<br>Favors clear separation and compactness. |
 <br>
-> **Note technique** : Pour le calcul du **Score Global** final dans le benchmark, l'indice de Davies-Bouldin est inversé. Cela permet d'harmoniser les critères afin que, pour les trois métriques, une valeur élevée soit systématiquement synonyme d'un meilleur partitionnement.
+
+> **Technical note** : To calculate the final Global Score in the benchmark, the Davies-Bouldin index is inverted. This harmonizes the criteria so that, across all three metrics, a higher value consistently signifies better partitioning.
 
 ```python
 def evaluate_clustering(X, labels):
@@ -149,9 +150,9 @@ def evaluate_clustering(X, labels):
     )
 ```
 
-#### Stabilité (ARI)
+#### Stability (ARI)
 
-On ré-échantillone les données avec un bootstrapping à 80% et on compare les résultats. Ça mesure la similarité entre deux partitionnements en ajustant l'effet du hasard
+The data is resampled using 80% bootstrapping to compare the results. This measures the similarity between two partitionings while adjusting for chance.
 
 ```python
 def compute_stability(X, model, n_runs=5):
@@ -180,13 +181,13 @@ def compute_stability(X, model, n_runs=5):
     return np.mean(ari_scores)
 ```
 
-### 1.c Calcul du K automatique 
+### 1.c Automatic K calculation
 
-On utilise un algorithme `KMeans` pour chaque valeur de k possible.
+We use a `KMeans` algorithm for each possible value of k.
 
-Pour chaque k, on calcule les trois métriques. Comme les résultats du score sont d'échelles différents, on fait une inversion du Davies-Bouldin. On multiplie par -1 car pour Silhouette et CH, "plus grand est mieux", alors que pour DB, "plus petit est mieux". En l'inversant, on harmonise : plus c'est grand, mieux c'est pour les trois. On ramène toutes les valeurs entre 0 et 1. Ainsi, chaque indice a le même poids dans la décision finales.
+For each $k$, the three metrics are calculated. Since the score results are on different scales, the Davies-Bouldin index is inverted. We multiply it by $-1$ because for Silhouette and CH, 'higher is better,' whereas for DB, 'lower is better.' By inverting it, the metrics are harmonized: a higher value becomes better for all three. Finally, all values are normalized to a range between 0 and 1. This ensures that each index carries the same weight in the final decision.
 
-On calcule la moyenne des 3 indices normalises et on récupère la valeur de k correspondante. 
+We calculate the average of the 3 normalized indices and retrieve the corresponding value of k.
 
 ```python
 def find_best_k(X, k_range):
@@ -216,11 +217,11 @@ def find_best_k(X, k_range):
 ```
 
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-2. Application des données 
+2. Data Application
 </h2>
 
 
-### 2.a Chargement des données et normalisation
+### 2.a Data loading and normalization
 
 ```python
 data = pd.read_csv("[Cluster].csv")
@@ -233,14 +234,14 @@ X_scaled = scaler.fit_transform(X)
 
 hopkins_after = hopkins_statistic(pd.DataFrame(X_scaled, columns=X.columns))
 
-print(f'Hopkins avant : {hopkins_before:.3f}')
-print(f'Hopkins après : {hopkins_after:.3f}')
+print(f'Hopkins forward : {hopkins_before:.3f}')
+print(f'Hopkins after : {hopkins_after:.3f}')
 
 X_best = X_scaled if hopkins_after > hopkins_before else X
 ```
-### 2.b Réduction des données (PCA) et choix du k 
+### 2.b Data reduction (PCA) and k selection
 
-Une fois que ltest de Hopkins a validé la présence de cluster, on simplifie les données. On compresse les marqieurs pour ne garder que ceux qui expliquent 90% de la variance. Cela permet d'éliminer le bruit de fond des capteurs avant de passer aux modèles lourds
+Once the Hopkins test has validated the presence of clusters, the data is simplified. We compress the markers to retain only those that explain 90% of the variance. This allows us to eliminate background sensor noise before proceeding to computationally intensive models.
 
 ```python
 #PCA
@@ -251,12 +252,12 @@ X_reduced = pca.fit_transform(X_best)
 k_range = range(2, 10)
 optimal_k, k_results = find_best_k(X_reduced, k_range)
 
-print(f"\n👉 k optimal détecté : {optimal_k}")
+print(f"\n👉 optimal k detected : {optimal_k}")
 ```
 
-### 2.c Benchmark des modèles
+### 2.c Benchmarking of models
 
-On lance la compétition entre les algorithmes : KMeabs, Agglomerative, Spectral, GMM, DBSCAN. 
+We launch the competition between the algorithms: KMeabs, Agglomerative, Spectral, GMM, DBSCAN.
 
 ```python
 clustering_methods = {
@@ -268,7 +269,7 @@ clustering_methods = {
 }
 ```
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-3. Evaluation des résultats 
+3. Evaluation of results
 </h2>
 
 
@@ -298,7 +299,7 @@ for name, model in clustering_methods.items():
 results_df = pd.DataFrame(results)
 ```
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
-4. Visualisation et algorithme optimal
+4. Visualization and optimal algorithm
 </h2>
 
 ```python
@@ -312,7 +313,7 @@ fig, ax1 = plt.subplots(figsize=(12, 7))
 fig.patch.set_facecolor('#000000')
 ax1.set_facecolor('#050505')
 
-# Premier axe Y : Calinski-Harabasz
+# First axis Y: Calinski-Harabasz
 ch_values = results_df['Calinski-Harabasz'].fillna(0)
 rects1 = ax1.bar(x - width, ch_values, width, 
                  label='Calinski-Harabasz', color='#31905e', alpha=0.8)
@@ -320,7 +321,7 @@ ax1.set_ylabel('Calinski-Harabasz (↑ mieux)', color='white', fontsize=12)
 ax1.tick_params(axis='y', labelcolor='white')
 ax1.set_ylim(0, ch_values.max() * 1.2 if ch_values.max() > 0 else 100)
 
-# Deuxième axe Y : Silhouette & Davies-Bouldin
+# Second axis Y: Silhouette & Davies-Bouldin
 ax2 = ax1.twinx()
 sil_values = results_df['Silhouette'].fillna(0)
 db_values = results_df['Davies-Bouldin'].fillna(0)
@@ -332,8 +333,8 @@ ax2.set_ylabel('Silhouette (↑) & Davies-Bouldin (↓)', color='white', fontsiz
 ax2.tick_params(axis='y', labelcolor='white')
 ax2.set_ylim(0, max(sil_values.max(), db_values.max()) * 1.2 if max(sil_values.max(), db_values.max()) > 0 else 1.5)
 
-# Légendes
-plt.title("Comparaison des Scores de Clustering", color='white', fontsize=15, pad=20)
+# Legends
+plt.title("Comparison of Clustering Scores", color='white', fontsize=15, pad=20)
 ax1.set_xticks(x)
 ax1.set_xticklabels(methods, color='white')
 
@@ -345,29 +346,30 @@ plt.grid(axis='y', linestyle='--', alpha=0.2)
 plt.tight_layout()
 plt.show()
 
-# Calcul de la meilleur méthode
+# Calculating the best method
 
 scaler = MinMaxScaler()
 
 scores_to_rank = results_df[['Silhouette', 'Davies-Bouldin', 'Calinski-Harabasz', 'Stabilité (ARI)']].copy()
 scores_to_rank = scores_to_rank.fillna(0) 
 
-# Attention à l'inversion de DB !
+# Beware of DB inversion !
 
 scores_to_rank['Davies-Bouldin'] = -scores_to_rank['Davies-Bouldin']
 
-# Normalisation
+# Standardization
 scores_scaled = scaler.fit_transform(scores_to_rank)
 results_df['Score_Global'] = scores_scaled.mean(axis=1)
 
 best_method = results_df.loc[results_df['Score_Global'].idxmax(), 'Méthode']
 
-print("\n--- Tableau récapitulatif ---")
+print("\n--- Summary table ---")
 print(results_df[['Méthode', 'Silhouette', 'Davies-Bouldin', 'Score_Global']].to_string(index=False))
 
-print(f"\n🏆 L'algorithme recommandé pour vos données MACSima est : {best_method}")
+print(f"\n The recommended algorithm for your MACSima data is : {best_method}")
 
 plt.style.use('default')
 ```
 
-L'absence de données pour l'algorithme DBSCAN s'explique par sa différence fondamentale de fonctionnement par rapport aux modèles basés sur les centroïdes (comme KMeans). Contrairement à ces derniers qui forcent chaque point à appartenir à un groupe, DBSCAN est un algorithme basé sur la densité. Il nécessite deux paramètres cruciaux : le rayon de recherche (eps) et le nombre minimum de points (min_samples). Si ces paramètres sont trop restrictifs par rapport à la distribution spatiale des données — notamment après une réduction de dimension (PCA) qui modifie les distances — l'algorithme peut classer la totalité des points comme du "bruit" (outliers). Mathématiquement, si aucun cluster n'est formé ou si un seul groupe global est identifié, les métriques de validation (Silhouette, Davies-Bouldin, Calinski-Harabasz) ne peuvent pas être calculées, car elles nécessitent la comparaison d'au moins deux partitions distinctes. Dans un contexte de biologie tissulaire, cela arrive souvent lorsque la densité cellulaire est trop hétérogène pour être capturée par un rayon de recherche unique et fixe.
+The absence of data for the DBSCAN algorithm is due to its fundamental operational difference compared to centroid-based models (such as KMeans). Unlike the latter, which force every point into a cluster, DBSCAN is a density-based algorithm. It relies on two crucial parameters: the search radius (eps) and the minimum number of points (min_samples).
+If these parameters are too restrictive relative to the spatial distribution of the data—especially following Dimensionality Reduction (PCA), which alters distances—the algorithm may classify all points as 'noise' (outliers). Mathematically, if no clusters are formed or if only a single global group is identified, validation metrics (Silhouette, Davies-Bouldin, Calinski-Harabasz) cannot be calculated, as they require the comparison of at least two distinct partitions. In the context of tissue biology, this frequently occurs when cell density is too heterogeneous to be captured by a single, fixed search radius.

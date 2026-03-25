@@ -64,6 +64,20 @@ The protocol described in [`Marker correlation analysis.md`](Marker%20correlatio
 
 ---
 
+### IV. Cellular Heterogeneity & Intensity Analysis
+
+> **Problem:** How to quantify marker expression levels and assess cellular heterogeneity across distinct biomarker populations?
+
+The protocol described in [`Analysis of Cellular Heterogeneity by Cyclic Imaging (MACSima).md`](Analysis%20of%20Cellular%20Heterogeneity%20by%20Cyclic%20Imaging%20(MACSima).md) focuses on:
+
+- **Population Filtering**: Identification of positive cells by establishing baseline expression thresholds (values > 0) to isolate expressing populations.
+- **Intensity Quantification**: Measurement of the average signal intensity per cell to evaluate marker quality, overall expression levels, and signal homogeneity.
+- **Data Stratification**: Exportation of population-specific datasets to facilitate independent clustering and targeted spatial downstream analysis.
+- **Expression Visualization**: Utilization of combined boxplots and stripplots to map the distribution of cellular average intensities per biomarker.
+- **Biomarker Correlation**: Computation and heatmap visualization of intensity correlations across different markers to reveal co-expression networks.
+
+
+
 ## Methodological Stack
 
 | Category | Tools & Libraries |
