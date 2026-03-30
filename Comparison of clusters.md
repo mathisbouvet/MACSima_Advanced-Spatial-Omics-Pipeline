@@ -16,7 +16,7 @@
 
 <div style="border: 1px solid #569cd6; border-radius: 10px; padding: 20px; background-color: rgba(86, 156, 214, 0.1); color: #000000;">
   <strong>Clustering</strong><br>
-Clustering is an unsupervised learning method aimed at grouping entities (in this case, cells) exhibiting similar protein expression profiles. In the context of cyclic imaging, this technique allows for the agnostic identification of cell populations—without biological a priori—to reveal phenotypic heterogeneity within a tissue. The challenge lies in partitioning the multidimensional marker space to define distinct cellular signatures.
+Clustering is an unsupervised learning method aimed at grouping entities (in this case, cells) exhibiting similar protein expression profiles. In the context of cyclic imaging, this technique allows for the agnostic identification of cell populations without biological a priori to reveal phenotypic heterogeneity within a tissue. The challenge lies in partitioning the multidimensional marker space to define distinct cellular signatures.
 </div>
 <br>
 <h2 style="color: #000000; border-bottom: 1px solid #333; font-family: Georgia, serif;  font-weight: normal; padding-bottom: 5px; margin-top: 35px;">
@@ -371,5 +371,5 @@ print(f"\n The recommended algorithm for your MACSima data is : {best_method}")
 plt.style.use('default')
 ```
 
-The absence of data for the DBSCAN algorithm is due to its fundamental operational difference compared to centroid-based models (such as KMeans). Unlike the latter, which force every point into a cluster, DBSCAN is a density-based algorithm. It relies on two crucial parameters: the search radius (eps) and the minimum number of points (min_samples).
-If these parameters are too restrictive relative to the spatial distribution of the data—especially following Dimensionality Reduction (PCA), which alters distances—the algorithm may classify all points as 'noise' (outliers). Mathematically, if no clusters are formed or if only a single global group is identified, validation metrics (Silhouette, Davies-Bouldin, Calinski-Harabasz) cannot be calculated, as they require the comparison of at least two distinct partitions. In the context of tissue biology, this frequently occurs when cell density is too heterogeneous to be captured by a single, fixed search radius.
+The absence of data for the DBSCAN algorithm is due to its fundamental operational difference compared to centroid based models (such as KMeans). Unlike the latter, which force every point into a cluster, DBSCAN is a density based algorithm. It relies on two crucial parameters: the search radius (eps) and the minimum number of points (min_samples).
+If these parameters are too restrictive relative to the spatial distribution of the data especially following Dimensionality Reduction (PCA), which alters distances the algorithm may classify all points as 'noise' (outliers). Mathematically, if no clusters are formed or if only a single global group is identified, validation metrics (Silhouette, Davies-Bouldin, Calinski-Harabasz) cannot be calculated, as they require the comparison of at least two distinct partitions. In the context of tissue biology, this frequently occurs when cell density is too heterogeneous to be captured by a single, fixed search radius.

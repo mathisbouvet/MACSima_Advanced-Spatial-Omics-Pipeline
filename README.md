@@ -81,7 +81,7 @@ The protocol described in [`Analysis of Cellular Heterogeneity by Cyclic Imaging
 
 - **Population Filtering**: Identification of positive cells by establishing baseline expression thresholds (values > 0) to isolate expressing populations.
 - **Intensity Quantification**: Measurement of the average signal intensity per cell to evaluate marker quality, overall expression levels, and signal homogeneity.
-- **Data Stratification**: Exportation of population-specific datasets to facilitate independent clustering and targeted spatial downstream analysis.
+- **Data Stratification**: Exportation of population specific datasets to facilitate independent clustering and targeted spatial downstream analysis.
 - **Expression Visualization**: Utilization of combined boxplots and stripplots to map the distribution of cellular average intensities per biomarker.
 - **Biomarker Correlation**: Computation and heatmap visualization of intensity correlations across different markers to reveal co-expression networks.
 
