@@ -5,6 +5,9 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white)](#)
 [![Biotech](https://img.shields.io/badge/Field-Spatial_Proteomics-blue?style=flat-square)](#)
 [![Framework](https://img.shields.io/badge/Framework-Methodological_Showcase-brightgreen?style=flat-square)](#)
+[![Instrument](https://img.shields.io/badge/Instrument-MACiQView-orange?style=flat-square)](#)
+[![Last Commit](https://img.shields.io/github/last-commit/mathisbouvet/MACSima_Spatial-Omics-Pipeline?style=flat-square)](https://github.com/mathisbouvet/MACSima_Spatial-Omics-Pipeline/commits/main/)
+[![Citation](https://img.shields.io/badge/Cite-this_repository-9cf?style=flat-square)](#citation)
 
 **A methodological framework for Python-based analysis of immunofluorescence spatial data.**  
 *This repository focuses on the validation and benchmarking of analytical pipelines.*
@@ -23,11 +26,15 @@ March 2026
 
 The workflow is structured into two main components: segmentation quality control and clustering-based phenotypic characterization. Each component is documented here as a step-by-step protocol, and packaged as a standalone, installable Python library.
 
+> **Data Origin**: Raw multiplex imaging data is acquired on the MACSima platform via **MACiQView**, then exported and processed through the Python pipelines described below.
+
 ## Table of Contents
 - [Pipeline Architecture](#pipeline-architecture)
   - [I. Segmentation Quality Control](#i-segmentation-quality-control)
   - [II. Unsupervised Phenotypic Characterization](#ii-unsupervised-phenotypic-characterization)
+- [Notebooks](#notebooks)
 - [Methodological Stack](#methodological-stack)
+- [Citation](#citation)
 
 
 
@@ -76,14 +83,39 @@ pip install spatial-cluster-compare
 
 ---
 
+## Notebooks
+
+The exploratory analyses behind both modules are available as Jupyter notebooks in [`/notebooks`](notebooks):
+
+- Development notebook for the segmentation QC protocol, prior to packaging as `macsima-qc`.
+- Development notebook for the clustering validation protocol, prior to packaging as `spatial-cluster-compare`.
+
+---
+
 ## Methodological Stack
 
 | Category | Tools & Libraries |
 | :--- | :--- |
+| **Acquisition** | MACSima — `MACiQView` |
 | **Data Science** | `Scikit-Learn`, `Pandas`, `NumPy` |
 | **Statistics** | `SciPy` (non-parametric tests, distributions) |
 | **Bio-Imaging** | `OpenCV`, `Scikit-Image`, `Read-ROI` |
 | **Visualization** | `Matplotlib`, `Seaborn` |
+
+---
+
+## Citation
+
+If you use `macsima-qc` or `spatial-cluster-compare` in your research, please consider citing this repository:
+
+```bibtex
+@software{bouvet_spatial_omics_pipeline,
+  author  = {Bouvet, Mathis},
+  title   = {Spatial-Omics Pipeline: A methodological framework for Python-based analysis of immunofluorescence spatial data},
+  year    = {2026},
+  url     = {https://github.com/mathisbouvet/MACSima_Spatial-Omics-Pipeline}
+}
+```
 
 ---
 

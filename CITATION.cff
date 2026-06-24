@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Spatial-Omics Pipeline: A methodological framework for Python-based analysis of immunofluorescence spatial data"
+authors:
+  - family-names: "Bouvet"
+    given-names: "Mathis"
+date-released: 2026-03-01
+url: "https://github.com/mathisbouvet/MACSima_Spatial-Omics-Pipeline"
+license: MIT
+type: software
+keywords:
+  - spatial-omics
+  - spatial-proteomics
+  - immunofluorescence
+  - bioinformatics
+  - image-analysis
+  - clustering
