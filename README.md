@@ -77,6 +77,7 @@ pip install macsima-qc
 ### II. Unsupervised Phenotypic Characterization
 
 [![PyPI](https://img.shields.io/pypi/v/spatial-cluster-compare.svg)](https://pypi.org/project/spatial-cluster-compare/)
+[![Tests](https://github.com/mathisbouvet/spatial-cluster-compare/actions/workflows/test.yml/badge.svg)](https://github.com/mathisbouvet/spatial-cluster-compare/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mathisbouvet/spatial-cluster-compare/blob/main/LICENSE)
 
 > **Problem:** How can clustering validity be ensured in large and heterogeneous cellular populations?
